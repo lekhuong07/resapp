@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:resapp/models/auth_provider.dart';
 import '../constants.dart' as Constants;
+import 'package:resapp/models/http_exception.dart';
 
 class SignupPage extends StatefulWidget{
   SignupPage({Key? key, required this.title}): super(key: key);
@@ -11,28 +14,88 @@ class SignupPage extends StatefulWidget{
 
 class _SignupPageState extends State<SignupPage> {
   TextEditingController nameController = TextEditingController();
-  String email = '';
-  String password = '';
-  String confirm = '';
+  Map<String, String> _authData = {
+    'email': '',
+    'password': '',
+    'confirmed': ''
+  };
+  var _isLoading = false;
+  var flag = false;
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  void _showSuccessDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('Account created successfully!'),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit(_authData) async {
+    Map<String, dynamic> data = {
+      'message': '',
+      'success': '',
+    };
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      data = await Provider.of<Auth>(context, listen: false).signup(
+          _authData['email'],
+          _authData['password'],
+          _authData['confirmed']
+      ) as Map<String, dynamic>;
+    } on HttpException catch (error) {
+      _showErrorDialog(error.toString());
+    } catch (error) {
+      const errorMessage = 'Could not authenticate you. Please try again later.';
+      _showErrorDialog(errorMessage);
+    }
+    if (data['success'] == true) {
+      _showSuccessDialog();
+      Navigator.pushNamed(context, '/login');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+        onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+        child: Scaffold(
         body: SingleChildScrollView(
           child: Column(
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.center,
               children: <Widget> [
-                SizedBox(height: Constants.screenTab(context)*3),
-                Text("Resapp",
-                  style: TextStyle(
-                    color: Constants.appColor,
-                    fontWeight: FontWeight.bold,
-                    fontSize: Constants.fontSizeBig(context),
-                  ),
-                ),
+                SizedBox(height: Constants.screenTab(context)),
                 Image.asset(
-                  "assets/images/frame10.png",
+                  "assets/images/frame2.png",
                   height: Constants.imageHeight(context),
                   width: Constants.imageWidth(context),
                 ),
@@ -65,7 +128,8 @@ class _SignupPageState extends State<SignupPage> {
                 ),
                 SizedBox(height: Constants.screenTab(context)),
                 Container(
-                  margin: EdgeInsets.only(left: Constants.screenTab(context), right: Constants.screenTab(context)),
+                  height: Constants.buttonHeight(context),
+                  margin: EdgeInsets.only(left: Constants.screenTab(context)*2, right: Constants.screenTab(context)*2),
                   child: TextField(
                     controller: nameController,
                     decoration: InputDecoration(
@@ -73,13 +137,14 @@ class _SignupPageState extends State<SignupPage> {
                       labelText: 'Email',
                     ),
                     onChanged: (text) {
-                      setState(() { email = text; });
+                      setState(() { _authData['email'] = text; });
                     },
                   )
                 ),
                 SizedBox(height: Constants.screenTab(context)),
                 Container(
-                    margin: EdgeInsets.only(left: Constants.screenTab(context), right: Constants.screenTab(context)),
+                    height: Constants.buttonHeight(context),
+                    margin: EdgeInsets.only(left: Constants.screenTab(context)*2, right: Constants.screenTab(context)*2),
                     child: TextField(
                       obscureText: true,
                       decoration: InputDecoration(
@@ -87,27 +152,28 @@ class _SignupPageState extends State<SignupPage> {
                         labelText: 'Password',
                     ),
                       onChanged: (text) {
-                        setState(() {  password = text; });
+                        setState(() {  _authData['password'] = text; });
                       },
                     )
                 ),
                 SizedBox(height: Constants.screenTab(context)),
                 Container(
-                    margin: EdgeInsets.only(left: Constants.screenTab(context), right: Constants.screenTab(context)),
-                    child: TextField(
-                      obscureText: true,
-                      decoration: InputDecoration(
-                        border: OutlineInputBorder(),
-                        labelText: 'Confirm password',
-                      ),
-                      onChanged: (text) {
-                        setState(() { confirm = text; });
-                      },
+                  height: Constants.buttonHeight(context),
+                  margin: EdgeInsets.only(left: Constants.screenTab(context)*2, right: Constants.screenTab(context)*2),
+                  child: TextField(
+                    obscureText: true,
+                    decoration: InputDecoration(
+                      border: OutlineInputBorder(),
+                      labelText: 'Confirm password',
                     ),
+                    onChanged: (text) {
+                      setState(() { _authData['confirmed'] = text; });
+                    },
+                  ),
                 ),
                 SizedBox(height: Constants.screenTab(context)),
                 ElevatedButton(
-                    onPressed: () { Navigator.pushNamed(context, '/home'); },
+                    onPressed: () { _submit(_authData); },
                     style: ElevatedButton.styleFrom(
                       primary: Constants.appColor,
                       fixedSize: Size(Constants.buttonWidth(context), Constants.buttonHeight(context)),
@@ -120,6 +186,7 @@ class _SignupPageState extends State<SignupPage> {
               ]
           ),
         )
+      ),
     );
   }
 }

@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:resapp/models/auth_provider.dart';
+import 'package:resapp/models/http_exception.dart';
 import '../constants.dart' as Constants;
 
 class LoginPage extends StatefulWidget{
@@ -10,28 +13,77 @@ class LoginPage extends StatefulWidget{
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController nameController = TextEditingController();
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
   String email = '';
   String password = '';
+  var _isLoading = false;
+
+  Map<String, String> _authData = {
+    'email': '',
+    'password': '',
+  };
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submit(_authData) async {
+    Map<String, dynamic> data = {
+      'message': '',
+      'success': '',
+      'email': ''
+    };
+    setState(() {
+      _isLoading = true;
+    });
+    try {
+      data = await Provider.of<Auth>(context, listen: false).login(
+        _authData['email'],
+        _authData['password'],
+      ) as Map<String, dynamic>;
+      setState(() {
+        _isLoading = false;
+      });
+    } on HttpException catch (error) {
+    _showErrorDialog(error.toString());
+    } catch (error) {
+      const errorMessage = 'Could not authenticate you. Please try again later.';
+      _showErrorDialog(errorMessage);
+    }
+    if (data['success'] == true) {
+      Navigator.pushNamed(context, '/navigation');
+    }
+  }
+
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
       body: SingleChildScrollView(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.end,
           crossAxisAlignment: CrossAxisAlignment.center,
           children: <Widget> [
-            SizedBox(height: Constants.screenTab(context)*3),
-            Text("Resapp",
-              style: TextStyle(
-                color: Constants.appColor,
-                fontWeight: FontWeight.bold,
-                fontSize: Constants.fontSizeBig(context),
-              ),
-            ),
+            SizedBox(height: Constants.screenTab(context)),
             Image.asset(
-              "assets/images/frame10.png",
+              "assets/images/frame2.png",
               height: Constants.imageHeight(context),
               width: Constants.imageWidth(context),
             ),
@@ -64,35 +116,38 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: Constants.screenTab(context)),
             Container(
-                margin: EdgeInsets.only(left: Constants.screenTab(context), right: Constants.screenTab(context)),
+                height: Constants.buttonHeight(context),
+                margin: EdgeInsets.only(left: Constants.screenTab(context)*2, right: Constants.screenTab(context)*2),
                 child: TextField(
-                  controller: nameController,
+                  controller: emailController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Email',
                   ),
                   onChanged: (text) {
-                    setState(() { email = text; });
+                    setState(() { _authData['email'] = text; });
                   },
                 )
             ),
             SizedBox(height: Constants.screenTab(context)),
             Container(
-                margin: EdgeInsets.only(left: Constants.screenTab(context), right: Constants.screenTab(context)),
+                height: Constants.buttonHeight(context),
+                margin: EdgeInsets.only(left: Constants.screenTab(context)*2, right: Constants.screenTab(context)*2),
                 child: TextField(
-                  controller: nameController,
+                  obscureText: true,
+                  controller: passwordController,
                   decoration: InputDecoration(
                     border: OutlineInputBorder(),
                     labelText: 'Password',
                   ),
                   onChanged: (text) {
-                    setState(() { password = text; });
+                    setState(() { _authData['password'] = text; });
                   },
                 )
             ),
             SizedBox(height: Constants.screenTab(context)),
             ElevatedButton(
-                onPressed: () { Navigator.pushNamed(context, '/profile'); },
+                onPressed: () { _submit(_authData); },
                 style: ElevatedButton.styleFrom(
                   primary: Constants.appColor,
                   fixedSize: Size(Constants.buttonWidth(context), Constants.buttonHeight(context)),
@@ -104,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: Constants.screenTab(context)),
             TextButton(
-                onPressed: () {  },
+                onPressed: () {  Navigator.pushNamed(context, '/forgot_password');  },
                 child: Text(
                   "Forgot your password?",
                   style: TextStyle(color: Colors.black, fontSize: Constants.fontSizeSmall(context)),
@@ -113,6 +168,7 @@ class _LoginPageState extends State<LoginPage> {
           ]
         ),
       )
-     );
+     ),
+    );
   }
 }

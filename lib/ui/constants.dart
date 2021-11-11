@@ -15,8 +15,20 @@ double screenTab(BuildContext context, {double dividedBy = 25}) {
   return screenSize(context).height / dividedBy;
 }
 
+double middleTab(BuildContext context, {double dividedBy = 10}) {
+  return screenSize(context).width - (screenSize(context).height / dividedBy);
+}
+
 double screenWidth(BuildContext context, {double dividedBy = 1}) {
   return screenSize(context).width / dividedBy;
+}
+
+double midWidth(BuildContext context, {double dividedBy = 2}) {
+  return screenSize(context).width / dividedBy;
+}
+
+double midHeight(BuildContext context, {double dividedBy = 2}) {
+  return screenSize(context).height / dividedBy;
 }
 
 double buttonWidth(BuildContext context, {double dividedBy = 3}) {
@@ -27,19 +39,15 @@ double buttonHeight(BuildContext context, {double dividedBy = 20}) {
   return screenSize(context).height / dividedBy;
 }
 
-double imageHeight(BuildContext context, {double dividedBy = 9}) {
+double imageHeight(BuildContext context, {double dividedBy = 3}) {
   return screenSize(context).height / dividedBy;
 }
 
-double imageWidth(BuildContext context, {double dividedBy = 9}) {
+double imageWidth(BuildContext context, {double dividedBy = 3}) {
   return screenSize(context).width / dividedBy;
 }
 
-double iconHeight(BuildContext context, {double dividedBy = 20}) {
-  return screenSize(context).height / dividedBy;
-}
-
-double iconWidth(BuildContext context, {double dividedBy = 20}) {
+double iconSize(BuildContext context, {double dividedBy = 20}) {
   return screenSize(context).width / dividedBy;
 }
 
@@ -52,5 +60,9 @@ double fontSizeNormal(BuildContext context, {double dividedBy = 16}) {
 }
 
 double fontSizeSmall(BuildContext context, {double dividedBy = 22}) {
+  return screenSize(context).width / dividedBy;
+}
+
+double fontSizeExtraSmall(BuildContext context, {double dividedBy = 26}) {
   return screenSize(context).width / dividedBy;
 }
