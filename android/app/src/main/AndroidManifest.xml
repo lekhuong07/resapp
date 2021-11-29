@@ -1,7 +1,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.kmle.resapp">
    <application
-        android:label="resapp"
+        android:label="Resume OTG"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"

@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:resapp/models/user.dart';
+import 'package:resapp/models/user_provider.dart';
 import 'package:resapp/ui/authenticate/authenticate_screen.dart';
 import 'package:resapp/ui/authenticate/login_screen.dart';
-import 'package:resapp/ui/position_list/position_list.dart';
+import 'package:resapp/ui/position_list/position_screen.dart';
 import 'package:resapp/ui/profile/profile_screen.dart';
 import 'package:resapp/ui/settings/settings_screen.dart';
 import 'package:resapp/ui/tips/tips_screen.dart';
@@ -22,11 +25,12 @@ class TabNavigator extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = Provider.of<ProviderUser>(context);
 
     Widget child ;
     switch (tabItem){
       case "ProfilePage":
-        child = ProfilePage();
+        child = ProfilePage(userProvider);
         break;
       case "PositionPage":
         child = PositionPage(positions: []);
@@ -38,10 +42,10 @@ class TabNavigator extends StatelessWidget {
         child = TipsPage(title: 'TipsPage');
         break;
       case "SettingsPage":
-        child = SettingsPage(title: 'SettingsPage');
+        child = SettingsPage(userProvider);
         break;
       default:
-        child = ProfilePage();
+        child = ProfilePage(userProvider);
     }
 
     return Navigator(

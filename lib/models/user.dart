@@ -8,6 +8,7 @@ class User with ChangeNotifier{
   String fullname;
   String dob;
   String email;
+  String password;
   String ps; // personal_statement
   List<Application> apply;
 
@@ -16,23 +17,26 @@ class User with ChangeNotifier{
     required this.dob,
     required this.email,
     this.ps = "",
+    this.password = "",
     this.imageURL = "",
     this.apply = const <Application>[]
   });
 }
 
 class Application {
-  int id;
+  int index;
+  String id;
   String positionName;
   String companyName;
   String status;
-  final DateTime dateTime;
+  String dateTime;
 
   Application({
     required this.id,
+    required this.index,
     required this.positionName,
     required this.companyName,
     required this.dateTime,
-    this.status = "In progress"
+    required this.status
   });
 }

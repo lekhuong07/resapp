@@ -1,6 +1,9 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resapp/models/position.dart';
+import 'package:resapp/models/position_provider.dart';
 import 'package:resapp/models/user_provider.dart';
 import '../constants.dart';
 import '../../models/dummy_position.dart';
@@ -17,27 +20,92 @@ class PositionPage extends StatefulWidget{
 class _PositionPageState extends State<PositionPage> {
   TextEditingController nameController = TextEditingController();
   String posName = '';
+  var _isLoading = false;
+  var _isInit = true;
 
-  void _addNewPosition(String inTitle, List<Section> inSection, int index){
-    final newPosition = Position(
-        title: inTitle,
-        section: inSection,
-        id: index
-    );
-    nameController.clear();
-    setState(() {
-      dummyPosition.add(newPosition);
-    });
+  @override
+  void initState(){
+    super.initState();
   }
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitAddAPosition(resumeId) async {
+    Map<String, dynamic> data = {
+      'message': '',
+      'success': '',
+    };
+    setState(() {
+      _isLoading = true;
+    });
+    if(resumeId == '' ){
+      _showErrorDialog("Resume name can't be empty");
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => PositionPage(positions: [],)),
+      );
+    }
+    else {
+      try {
+        data = await Provider.of<ProviderPositions>(context, listen: false)
+            .addPosition(resumeId) as Map<String, dynamic>;
+        setState(() {
+          _isLoading = false;
+        });
+      } on HttpException catch (error) {
+        _showErrorDialog(error.toString());
+      } catch (error) {
+        const errorMessage = 'Could not authenticate you. Please try again later.';
+        _showErrorDialog(errorMessage);
+      }
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => PositionPage(positions: [],)),
+      );
+    }
+  }
+
+  @override
+  void didChangeDependencies() {
+    if (_isInit) {
+      setState(() {
+        _isLoading = true;
+      });
+      Provider.of<ProviderPositions>(context).fetchAndSetResume().then((_) {
+        setState(() {
+          _isLoading = false;
+        });
+      });
+    }
+    _isInit = false;
+    super.didChangeDependencies();
+  }
+
 
   @override
   Widget build(BuildContext context) {
     final userProfile = Provider.of<ProviderUser>(context).userProfile;
+
     return GestureDetector(
       onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
       child: Scaffold(
       backgroundColor: Colors.white,
-      body: SafeArea(
+      body: _isLoading ? Center(child: CircularProgressIndicator()) :
+      SafeArea(
           child: Column(
               children: <Widget> [
                 Expanded (
@@ -101,7 +169,7 @@ class _PositionPageState extends State<PositionPage> {
                                 controller: nameController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
-                                  labelText: 'Add a new position',
+                                  labelText: 'Add a new resume',
                                 ),
                                 onChanged: (text) {
                                   setState(() { posName = text; });
@@ -114,9 +182,7 @@ class _PositionPageState extends State<PositionPage> {
                             child: SizedBox(
                               height: double.infinity,
                               child: TextButton(
-                                onPressed: () {
-                                  _addNewPosition(posName, <Section> [], dummyPosition.length);
-                                },
+                                onPressed: () { _submitAddAPosition(posName); },
                                 style: ElevatedButton.styleFrom(
                                   primary: Colors.white,
                                   fixedSize: Size(iconSize(context), buttonHeight(context)),

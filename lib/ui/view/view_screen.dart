@@ -19,9 +19,8 @@ class _ViewPageState extends State<ViewPage> {
   @override
   Widget build(BuildContext context) {
     final positionData = Provider.of<ProviderPositions>(context);
-    final dummyPosition = positionData.items;
     final userProfile = Provider.of<ProviderUser>(context).userProfile;
-
+    final dummyPosition = positionData.items;
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(

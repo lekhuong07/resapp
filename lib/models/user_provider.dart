@@ -2,13 +2,12 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter/cupertino.dart';
+import 'package:requests/requests.dart';
 import 'package:resapp/models/user.dart';
-import 'package:http/http.dart' as http;
 
 class ProviderUser with ChangeNotifier{
-  final Map<String, String> header;
-  var _userProfile;
-  ProviderUser(this.header, this._userProfile);
+  User _userProfile;
+  ProviderUser(this._userProfile);
   //User(
   //fullname: "",  dob: "",  email: '', ps: "",
   //apply: <Application> [
@@ -19,55 +18,8 @@ class ProviderUser with ChangeNotifier{
   //],
   //);
 
-  void updateCookie(http.Response response) {
-    String rawCookie = response.headers['set-cookie']!;
-    if (rawCookie != null) {
-      int index = rawCookie.indexOf(';');
-      header['cookie'] =  (index == -1) ? rawCookie : rawCookie.substring(0, index);
-    }
-  }
-
-  Future<void> fetchAndSetUser() async {
-    final url =  "http://10.0.2.2:5000/profile/get";
-    print(header);
-    final response = await http.get(
-      Uri.parse(url),
-      headers: <String, String>{
-        'Content-Type': 'application/json; charset=UTF-8',
-      },
-    );
-    updateCookie(response);
-    final responseData = json.decode(response.body) as Map<String, dynamic>;
-
-    print(responseData);
-    if (responseData['success'] == false){
-      throw HttpException(responseData['message']);
-    }
-    final List<Application> _application = [];
-    for(int i = 0; i < responseData['application'].length; i++){
-      Map<String, dynamic> curr = responseData['application'][i];
-      _application.add(
-        Application(
-          id: curr['id'],
-          positionName: curr['details'][0],
-          companyName: curr['details'][1],
-          dateTime: curr['details'][2],
-          status: curr['details'][3]
-        )
-      );
-    }
-
-    _userProfile = User(
-      fullname: responseData['name'],
-      dob: responseData['dob'],
-      email: responseData['dob'],
-      apply:  _application
-    );
-    notifyListeners();
-  }
-
   Application findById(int id){
-    return _userProfile.apply.firstWhere((ap) => ap.id == id);
+    return _userProfile.apply.firstWhere((ap) => ap.index == id);
   }
 
   List<Application> getApplication()  {
@@ -89,7 +41,6 @@ class ProviderUser with ChangeNotifier{
     return Map<String, double>.from(result);
   }
 
-
   int get itemCount {
     return _userProfile.apply.length;
   }
@@ -98,17 +49,139 @@ class ProviderUser with ChangeNotifier{
     return _userProfile;
   }
 
-  void addApplication(String positionName, String companyName) {
-    _userProfile.apply.insert(
-      _userProfile.apply.length,
-      Application(
-        id: _userProfile.apply.length+1,
-        positionName: positionName,
-        companyName: companyName,
-        dateTime: DateTime.now(),
-      ),
+  Future<void> fetchAndSetUser() async {
+    /*final url =  "https://kl-resume-app.herokuapp.com/profile/get";
+    final response = await http.get(
+      Uri.parse(url),
+      headers: <String, String>{
+        'Content-Type': 'application/json; charset=UTF-8',
+      },
+    );
+    updateCookie(response);
+    final responseData = json.decode(response.body) as Map<String, dynamic>;
+
+    print(responseData);*/
+    var response = await Requests.get(
+      "https://kl-resume-app.herokuapp.com/profile/get",
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    final List<Application> _application = [];
+    for(int i = 0; i < responseData['message']['application'].length; i++){
+      Map<String, dynamic> curr = responseData['message']['application'][i];
+      _application.add(
+          Application(
+              index: i,
+              id: curr['_id'],
+              positionName: curr['details'][0],
+              companyName: curr['details'][1],
+              dateTime: curr['details'][2],
+              status: curr['details'][3]
+          )
+      );
+    }
+    _userProfile = User(
+        fullname: responseData['message']['name'],
+        dob: responseData['message']['dob'],
+        email: responseData['message']['email'],
+        ps: responseData['message']['ps'],
+        apply: _application
     );
     notifyListeners();
   }
 
+  Future<void> updateProfile(Map<String, String> _editData) async {
+    var response = await Requests.put(
+        "https://kl-resume-app.herokuapp.com/profile/edit",
+        json: {
+          "name": _editData['name'],
+          "dob": _editData['dob'],
+          "statement": _editData['ps']
+        }
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
+
+  Future<void> editPassword(Map<String, String> _editData) async {
+    print("------_editData-------");
+    print(_editData);
+    var response = await Requests.put(
+        "https://kl-resume-app.herokuapp.com/password/edit",
+        json: {
+          "email": _editData['email'],
+          "new_password": _editData['newPassword'],
+          "confirmed_new_password": _editData['confirmed']
+        }
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
+
+
+  Future<void> updateApplication(String decision, String _id) async {
+    var response = await Requests.put(
+        "https://kl-resume-app.herokuapp.com/application/next_step/" + _id,
+        json: {
+          'status': decision,
+        }
+    );
+    print(decision);
+    print(_id);
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
+
+  Future<void> addApplication(String company, String position) async {
+    var response = await Requests.post(
+        "https://kl-resume-app.herokuapp.com/application/add",
+        json: {
+          'company': company,
+          'position': position
+        }
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
+
+  Future<void> deleteApplication(String _id) async {
+    var response = await Requests.delete(
+        "https://kl-resume-app.herokuapp.com/application/delete/" + _id,
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
 }

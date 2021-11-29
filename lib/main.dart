@@ -1,6 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:resapp/ui/authenticate/forgot_password.dart';
 import 'package:resapp/ui/home/navigation.dart';
+import 'package:resapp/ui/position_list/add_experience_form.dart';
+import 'package:resapp/ui/position_list/add_skill_form.dart';
 import 'package:resapp/ui/position_list/position_editor.dart';
+import 'package:resapp/ui/settings/change_password.dart';
 import 'package:resapp/ui/settings/settings_screen.dart';
 import 'package:resapp/ui/view/listed_view_screen.dart';
 import 'package:resapp/ui/view/splitted_view_screen.dart';
@@ -30,17 +34,23 @@ class MyApp extends StatelessWidget {
         ChangeNotifierProvider.value(
             value: Auth()
         ),
-        ChangeNotifierProvider(
+        /*ChangeNotifierProvider(
           create: (_) => ProviderPositions(),
+        ),*/
+        ChangeNotifierProxyProvider<Auth, ProviderPositions>(
+          create: (_) => ProviderPositions(<Position>[]),
+          update: (context, auth, previousPositions) => ProviderPositions(
+            previousPositions == null ? <Position>[] : previousPositions.items,
+          ),
         ),
         ChangeNotifierProxyProvider<Auth, ProviderUser>(
-          create: (_) => ProviderUser({"":""}, User(
-            fullname: "",  dob: "",  email: '', ps: "",
-            apply: <Application> [],
-          )),
+          create: (_) => ProviderUser(
+              User(fullname: "",  dob: "",  email: '', ps: "", apply: <Application> [],)
+          ),
           update: (context, auth, previousUser) => ProviderUser(
-              auth.header,
-              previousUser == null ? [] : previousUser.userProfile,
+              previousUser == null ?
+              User(fullname: "",  dob: "",  email: '', ps: "", apply: <Application> [],):
+              previousUser.userProfile,
           ),
         ),
       ],
@@ -52,11 +62,12 @@ class MyApp extends StatelessWidget {
             '/auth': (context) => AuthPage(title: 'AuthPage'),
             '/login': (context) => LoginPage(title: "LoginPage"),
             '/signup': (context) => SignupPage(title: "SignupPage"),
-            '/forgot_password': (context) => SignupPage(title: "SignupPage"),
+            '/forgot_password': (context) => ForgotPassword(),
             '/position_edit': (context) => PositionEditor(),
-            '/profile': (context) => ProfilePage(),
+            '/profile': (context) => ProfilePage(ProviderUser(
+              User(fullname: "",  dob: "",  email: '', ps: "", apply: <Application> [],)
+            ),),
             '/navigation': (context) => HomePage(),
-            '/settings': (context) => SettingsPage(title:'SettingsPage')
           },
       ), )
     );

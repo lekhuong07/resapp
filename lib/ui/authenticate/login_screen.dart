@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resapp/models/auth_provider.dart';
 import 'package:resapp/models/http_exception.dart';
+import 'package:resapp/ui/authenticate/forgot_password.dart';
 import '../constants.dart' as Constants;
+import 'forgot_password.dart';
 
 class LoginPage extends StatefulWidget{
   LoginPage({Key? key, required this.title}): super(key: key);
@@ -15,8 +17,6 @@ class LoginPage extends StatefulWidget{
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  String email = '';
-  String password = '';
   var _isLoading = false;
 
   Map<String, String> _authData = {
@@ -159,9 +159,17 @@ class _LoginPageState extends State<LoginPage> {
             ),
             SizedBox(height: Constants.screenTab(context)),
             TextButton(
-                onPressed: () {  Navigator.pushNamed(context, '/forgot_password');  },
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute(
+                      builder: (_) {
+                        return ForgotPassword();
+                      },
+                    ),
+                  );
+                },
                 child: Text(
-                  "Forgot your password?",
+                  "Forget your password?",
                   style: TextStyle(color: Colors.black, fontSize: Constants.fontSizeSmall(context)),
                 )
             ),

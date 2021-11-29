@@ -1,14 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resapp/models/position.dart';
 import 'package:resapp/models/position_provider.dart';
 import 'package:resapp/models/user_provider.dart';
+import 'package:resapp/ui/position_list/position_screen.dart';
+import 'package:resapp/ui/position_list/skill_editor.dart';
 import 'package:resapp/ui/view/experience_view.dart';
 import 'package:resapp/ui/view/skill_view.dart';
 
 import '../constants.dart';
 import 'add_experience_form.dart';
 import 'add_skill_form.dart';
+import 'experience_editor.dart';
 
 class PositionEditor extends StatefulWidget{
   const PositionEditor({Key? key}): super(key: key);
@@ -17,9 +22,139 @@ class PositionEditor extends StatefulWidget{
 }
 
 class _PositionEditorState extends State<PositionEditor> {
+  TextEditingController sectionName = TextEditingController();
+  String sectionStr = '';
+
   int clickedIndex = -1;
   bool isExpPressed = false;
   bool isSkillPressed = false;
+  bool _editData = true;
+  bool _editSection = true;
+  bool dataShown = false;
+
+  void _showErrorDialog(String message) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: Text('An Error Occurred!'),
+        content: Text(message),
+        actions: <Widget>[
+          TextButton(
+            child: Text('Okay'),
+            onPressed: () {
+              Navigator.of(ctx).pop();
+            },
+          )
+        ],
+      ),
+    );
+  }
+
+  Future<void> _submitDeleteSection(resumeId, sectionId) async {
+    Map<String, dynamic> data = {
+      'status': '',
+      'success': ''
+    };
+    if (sectionId == ''){
+      _showErrorDialog('Please click on section that you want to delete');
+    }
+    else{
+      try {
+        data = await Provider.of<ProviderPositions>(context, listen: false).deleteSection(
+            resumeId, sectionId
+        ) as Map<String, dynamic>;
+      } on HttpException catch (error) {
+        _showErrorDialog(error.toString());
+      } catch (error) {
+        const errorMessage = 'Could not authenticate you. Please try again later.';
+        _showErrorDialog(errorMessage);
+      }
+    }
+     Navigator.pushNamed(context, '/profile');
+  }
+
+  Future<void> _submitAddSection(resumeId, name) async {
+    Map<String, dynamic> data = {
+      'message': '',
+      'success': '',
+    };
+    print(name);
+    if(name == ''){
+      _showErrorDialog("Section name can't be empty");
+    }
+    else {
+      print(resumeId);
+      try {
+        data = await Provider.of<ProviderPositions>(context, listen: false)
+            .addSection(resumeId, name) as Map<String, dynamic>;
+      } on HttpException catch (error) {
+        _showErrorDialog(error.toString());
+      } catch (error) {
+        const errorMessage = 'Could not authenticate you. Please try again later.';
+        _showErrorDialog(errorMessage);
+      }
+      Navigator.push(
+        context, MaterialPageRoute(builder: (context) => PositionPage(positions: [],)),
+      );
+    }
+  }
+
+  Future<void> _submitDeleteExp(resumeId, sectionId, experienceId) async {
+    Map<String, dynamic> data = {
+      'status': '',
+      'success': ''
+    };
+    if (sectionId == '') {
+      _showErrorDialog('Please click on section that you want to delete');
+    }
+    else if (experienceId == '') {
+      _showErrorDialog(
+          'Please click on experience/skill that you want to delete');
+    }
+      try {
+        data = await Provider.of<ProviderPositions>(context, listen: false)
+            .deleteExperience(
+            resumeId, sectionId, experienceId, true
+        ) as Map<String, dynamic>;
+      } on HttpException catch (error) {
+        _showErrorDialog(error.toString());
+      } catch (error) {
+        const errorMessage = 'Could not authenticate you. Please try again later.';
+        _showErrorDialog(errorMessage);
+      }
+      Navigator.push(
+        context,
+        MaterialPageRoute(builder: (context) => PositionPage(positions: [],)),
+      );
+  }
+
+  Future<void> _submitDeleteSkill(resumeId, sectionId, experienceId) async {
+    Map<String, dynamic> data = {
+      'status': '',
+      'success': ''
+    };
+    if (sectionId == '') {
+      _showErrorDialog('Please click on section that you want to delete');
+    }
+    else if (experienceId == '') {
+      _showErrorDialog(
+          'Please click on experience/skill that you want to delete');
+    }
+    try {
+      data = await Provider.of<ProviderPositions>(context, listen: false).deleteExperience(
+          resumeId, sectionId, experienceId, false
+      ) as Map<String, dynamic>;
+    } on HttpException catch (error) {
+      _showErrorDialog(error.toString());
+    } catch (error) {
+      const errorMessage = 'Could not authenticate you. Please try again later.';
+      _showErrorDialog(errorMessage);
+    }
+    Navigator.push(
+      context, MaterialPageRoute(builder: (context) => PositionPage(positions: [],)),
+    );
+  }
+
 
   @override
   void initState(){
@@ -27,6 +162,7 @@ class _PositionEditorState extends State<PositionEditor> {
     clickedIndex = 0;
     isExpPressed = false;
     isSkillPressed = false;
+    dataShown=false;
   }
 
   @override
@@ -38,14 +174,30 @@ class _PositionEditorState extends State<PositionEditor> {
 
   @override
   Widget build(BuildContext context) {
-    TextEditingController sectionName = TextEditingController();
-    String sectionStr = '';
-
     var _initValues = {
       'name': 'KL',
       'dob': '02/16/1997',
       'ps': 'FKU',
     };
+
+    void navigateEditExperience(BuildContext ctx, String resumeId, String sectionId, String sectionTitle, Experience exp){
+      Navigator.of(ctx).push(
+        MaterialPageRoute(
+          builder: (_) {
+            return ExperienceEditor(resumeId, sectionId, sectionTitle, exp);
+          },
+        ),
+      );
+    }
+    void navigateSkillExperience(BuildContext ctx, String resumeId, String sectionId, String sectionTitle, Skill sk){
+      Navigator.of(ctx).push(
+        MaterialPageRoute(
+          builder: (_) {
+            return SkillEditor(resumeId, sectionId, sectionTitle, sk);
+          },
+        ),
+      );
+    }
 
     void toggleSplitExperienceData(Position p, int clickedIdx){
       for(var i = 0; i < p.section.length; i++){
@@ -133,33 +285,77 @@ class _PositionEditorState extends State<PositionEditor> {
                               Column(
                                 children: [
                                   TextButton(
-                                      onPressed: () { },
+                                      onPressed: () {
+                                        setState(() {
+                                          _editSection = !_editSection;
+                                        });
+                                      },
                                       style: ElevatedButton.styleFrom(
                                         primary: Colors.white,
                                         fixedSize: Size(iconSize(context), buttonHeight(context)),
                                       ),
-                                      child: Icon(Icons.post_add, color: appColor, size: fontSizeBig(context))
+                                      child: Icon(Icons.post_add, color: _editSection ? appColor: Colors.grey, size: fontSizeBig(context))
                                   ),
-                                  TextField(
-                                    controller: sectionName,
-                                    decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      labelText: 'Section Name',
-                                    ),
-                                    onChanged: (text) {
-                                      setState(() { sectionStr = text; });
-                                    },
-                                  ),
+                                  _editSection ? Text("") : Text("Edit mode"),
+                                  _editSection ? Column (
+                                    children: <Widget> [
+                                      TextField(
+                                        controller: sectionName,
+                                        decoration: InputDecoration(
+                                          border: OutlineInputBorder(),
+                                          labelText: 'Section Name',
+                                        ),
+                                        onChanged: (text) {
+                                          setState(() { sectionStr = text; });
+                                        },
+                                      ),
+                                      ElevatedButton(
+                                          onPressed: () { _submitAddSection(pos.dataId, sectionStr); },
+                                          style: ElevatedButton.styleFrom(
+                                            primary: appColor,
+                                            fixedSize: Size(buttonWidth(context), buttonHeight(context)),
+                                          ),
+                                          child: Text("Add",
+                                            style: TextStyle(fontSize: fontSizeNormal(context)),
+                                          )
+                                      )
+                                    ]
+                                  ): Text(""),
                                 ]
                               ),
-                              Expanded (
+                              _editSection ? Text("") : Expanded (
                                 flex: 80,
                                 child: ListView.separated(
                                   itemCount: section.length,
                                   itemBuilder: (BuildContext context, int index) {
-                                    return TextButton(
+                                    return Dismissible(
+                                      onDismissed: (direction) { _submitDeleteSection(pos.dataId, section[index].dataId); },
+                                      key: Key(section[index].dataId),
+                                      direction: DismissDirection.endToStart,
+                                      confirmDismiss: (direction) {
+                                      return showDialog(
+                                        context: context,
+                                        builder: (ctx) => AlertDialog(
+                                        title: Text('Are you sure?'),
+                                        content: Text(
+                                          'Do you want to remove the section?',
+                                        ),
+                                        actions: <Widget>[
+                                          TextButton(
+                                            child: Text('No'),
+                                            onPressed: () {  Navigator.of(ctx).pop(false); },
+                                          ),
+                                          TextButton(
+                                            child: Text('Yes'),
+                                            onPressed: () { Navigator.of(ctx).pop(true); },
+                                          ),
+                                        ],
+                                        ),
+                                      );
+                                    },
+                                    child: TextButton(
                                         onPressed: () {
-                                          setState(() { clickedIndex = index;  });
+                                          setState(() { clickedIndex = index;  dataShown=true;});
                                           toggleSplitExperienceData(pos, clickedIndex);
                                         },
                                         style: ButtonStyle(
@@ -189,8 +385,10 @@ class _PositionEditorState extends State<PositionEditor> {
                                               ),
                                             ]
                                         )
+                                      )
                                     );
-                                  }, separatorBuilder: (BuildContext context, int index) => const Divider(),),
+                                  }, separatorBuilder: (BuildContext context, int index) => const Divider(),
+                                ),
                               ),
                             ]
                           )
@@ -200,19 +398,21 @@ class _PositionEditorState extends State<PositionEditor> {
                             child: Column(
                               children: <Widget>[
                                 TextButton(
-                                  onPressed: () { },
+                                  onPressed: () {
+                                    !_editSection ? setState(() { _editData= !_editData; }) :  null;
+                                  },
                                   style: ElevatedButton.styleFrom(
                                     primary: Colors.white,
                                     fixedSize: Size(iconSize(context), buttonHeight(context)),
                                   ),
-                                  child: Icon(Icons.post_add, color: appColor, size: fontSizeBig(context))
+                                  child: Icon(Icons.post_add, color: _editData ? Colors.grey : appColor,  size: fontSizeBig(context))
                                 ),
-                                Expanded(
+                                _editData ? Expanded(flex:10, child: Text("")) : Expanded(
                                   flex: 10,
                                   child: Row (
                                     mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                                     children: <Widget>[
-                                      ElevatedButton(
+                                      !_editSection && !_editData ? ElevatedButton(
                                           onPressed: () {
                                             setState(() {
                                               isExpPressed=true;
@@ -230,8 +430,8 @@ class _PositionEditorState extends State<PositionEditor> {
                                                 fontSize: fontSizeSmall(context)
                                             ),
                                           )
-                                      ),
-                                      ElevatedButton(
+                                      ): Text(""),
+                                      !_editSection && !_editData ? ElevatedButton(
                                           onPressed: () {
                                             setState(() {
                                               isExpPressed=false;
@@ -249,18 +449,130 @@ class _PositionEditorState extends State<PositionEditor> {
                                               fontSize: fontSizeSmall(context)
                                             ),
                                           )
-                                      ),
+                                      ) : Text("") ,
                                     ]
                                   )
                                 ),
                                 Expanded (
                                     flex: 60,
-                                    child: Visibility(
-                                        maintainSize: true,
-                                        maintainAnimation: true,
-                                        maintainState: true,
-                                        visible: isSkillPressed || isExpPressed,
-                                        child: isExpPressed ? AddExperienceForm(initValues: _initValues) : AddSkillForm(initValues: _initValues)
+                                    child: !_editSection && _editData && section.length > 0
+                                      ?Visibility(
+                                      maintainSize: true,
+                                      maintainAnimation: true,
+                                      maintainState: true,
+                                      visible: section[clickedIndex].isChosen,
+                                      child: ListView.separated(
+                                        itemCount: section[clickedIndex].experience.length > 0 ? section[clickedIndex].experience.length : section[clickedIndex].skill.length,
+                                        itemBuilder: (BuildContext context, int index) {
+                                          return section[clickedIndex].experience.length > 0 ? Dismissible(
+                                              onDismissed: (direction) {
+                                                _submitDeleteExp(
+                                                    pos.dataId,
+                                                    section[clickedIndex].dataId,
+                                                    section[clickedIndex].experience[index].dataId,
+                                                );
+                                              },
+                                              key: UniqueKey(),
+                                              direction: DismissDirection.startToEnd,
+                                              confirmDismiss: (direction) {
+                                                return showDialog(
+                                                  context: context,
+                                                  builder: (ctx) => AlertDialog(
+                                                    title: Text('Are you sure?'),
+                                                    content: Text(
+                                                      'Do you want to remove this experience/skill?',
+                                                    ),
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                        child: Text('No'),
+                                                        onPressed: () {  Navigator.of(ctx).pop(false); },
+                                                      ),
+                                                      TextButton(
+                                                        child: Text('Yes'),
+                                                        onPressed: () { Navigator.of(ctx).pop(true); },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                  margin: EdgeInsets.only(left: screenTab(context)/2, right: screenTab(context)/2),
+                                                  child:
+                                                  GestureDetector(
+                                                    onLongPress: () {
+                                                        navigateEditExperience(
+                                                          context,
+                                                          pos.dataId,
+                                                          section[clickedIndex].dataId,
+                                                          section[clickedIndex].name,
+                                                          section[clickedIndex].experience[index]
+                                                        );
+                                                      },
+                                                    child: ExperienceViewPage(context, section[clickedIndex].experience[index])
+                                                  )
+                                              )
+                                          ) : Dismissible(
+                                              onDismissed: (direction) {
+                                                _submitDeleteSkill(
+                                                    pos.dataId,
+                                                    section[clickedIndex].dataId,
+                                                    section[clickedIndex].skill[index].dataId,
+                                                );
+                                              },
+                                              key: UniqueKey(),
+                                              direction: DismissDirection.startToEnd,
+                                              confirmDismiss: (direction) {
+                                                return showDialog(
+                                                  context: context,
+                                                  builder: (ctx) => AlertDialog(
+                                                    title: Text('Are you sure?'),
+                                                    content: Text(
+                                                      'Do you want to remove this experience/skill?',
+                                                    ),
+                                                    actions: <Widget>[
+                                                      TextButton(
+                                                        child: Text('No'),
+                                                        onPressed: () {  Navigator.of(ctx).pop(false); },
+                                                      ),
+                                                      TextButton(
+                                                        child: Text('Yes'),
+                                                        onPressed: () { Navigator.of(ctx).pop(true); },
+                                                      ),
+                                                    ],
+                                                  ),
+                                                );
+                                              },
+                                              child: Container(
+                                                  margin: EdgeInsets.only(left: screenTab(context)/2, right: screenTab(context)/2),
+                                                  child:
+                                                  GestureDetector(
+                                                      onLongPress: () {
+                                                        navigateSkillExperience(
+                                                            context,
+                                                            pos.dataId,
+                                                            section[clickedIndex].dataId,
+                                                            section[clickedIndex].name,
+                                                            section[clickedIndex].skill[index]
+                                                        );
+                                                      },
+                                                      child: SkillViewPage(context, section[clickedIndex].skill[index])
+                                                  )
+                                                )
+                                          );
+                                        },
+                                        separatorBuilder: (BuildContext context, int index) => const Divider(color: appColor),
+                                      ),
+                                    )
+                                    :Visibility(
+                                      maintainSize: true,
+                                      maintainAnimation: true,
+                                      maintainState: true,
+                                      visible: isSkillPressed || isExpPressed,
+                                      child: _editSection || !dataShown ? Text("") :
+                                      (isSkillPressed ?
+                                        AddSkillForm(pos.dataId ,section[clickedIndex].dataId):
+                                        AddExperienceForm(pos.dataId ,section[clickedIndex].dataId)
+                                      )
                                     ),
                                 )
                              ]

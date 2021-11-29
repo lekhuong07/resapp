@@ -44,21 +44,11 @@ class _PositionItemState extends State<PositionItem> {
   }
 
 
-  List<String> getSectionsDetail (Position pos) {
-    List<String> res = <String> [];
-    for (Section sec in pos.section) {
-      res.add("+ " + sec.name + ":");
-    }
-    return res;
-  }
-
   @override
   Widget build(BuildContext context){
     final pos = Provider.of<ProviderPositions>(context)
         .items
-        .firstWhere((prod) => prod.id == this.widget.idx);
-    final List<String> positionDetail = getSectionsDetail(pos);
-
+        .firstWhere((prod) => prod.index == this.widget.idx);
     return GridTile(
       child: Center(
         child: Text(pos.title,

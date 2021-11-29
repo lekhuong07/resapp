@@ -21,16 +21,8 @@ class Auth with ChangeNotifier {
     return _token;
   }
 
-  void updateCookie(http.Response response) {
-    String rawCookie = response.headers['set-cookie']!;
-    if (rawCookie != null) {
-      int index = rawCookie.indexOf(';');
-      header['cookie'] =  (index == -1) ? rawCookie : rawCookie.substring(0, index);
-    }
-  }
-
   Future<void> signup(String email, String password, String confirmed) async {
-    final url =  "http://10.0.2.2:5000/register";
+    /*final url =  "https://kl-resume-app.herokuapp.com/register";
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
@@ -43,32 +35,44 @@ class Auth with ChangeNotifier {
         },
       ),
     );
-    updateCookie(response);
     final responseData = json.decode(response.body);
     if (responseData['success'] == false){
       throw HttpException(responseData['message']);
     }
     print(responseData);
-    return responseData;
+    return responseData;*/
+    var r = await Requests.post(
+        "https://kl-resume-app.herokuapp.com/register",
+        json: {
+          'email': email,
+          'password': password,
+          'confirmed_password': confirmed
+        },
+    );
+    r.raiseForStatus();
+    dynamic rjson = r.json();
+    if (rjson['success'] == false){
+      throw HttpException(rjson['message']);
+    }
+    notifyListeners();
+    return (rjson);
   }
 
-  Future<void> login(String email, String password) async {
-    final url =  "http://10.0.2.2:5000/login";
-    final response = await Requests.post(
-      "http://10.0.2.2:5000/login",
+  Future<void> login(String email, String password) async {/*
+    final url =  "https://kl-resume-app.herokuapp.com/login";
+    final response = await http.post(
+      Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
-      body: {
+      body: json.encode(
+        {
           'email': email,
           'password': password,
         },
-        bodyEncoding: RequestBodyEncoding.FormURLEncoded
+      ),
     );
-    response.raiseForStatus();
-    dynamic json = response.json();
-    print(json);
-    final responseData =  response.json();
+    final responseData = json.decode(response.body);
     if (responseData['success'] == false){
       throw HttpException(responseData['message']);
     }
@@ -78,25 +82,68 @@ class Auth with ChangeNotifier {
     }
     _token = responseData['email'];
     notifyListeners();
-    return (responseData);
+    return (responseData);*/
+    var r = await Requests.post(
+        "https://kl-resume-app.herokuapp.com/login",
+        json: {
+          'email': email,
+          'password': password,
+        }
+    );
+
+    r.raiseForStatus();
+    dynamic rjson = r.json();
+    if (rjson['success'] == false){
+      throw HttpException(rjson['message']);
+    }
+    _token = rjson['email'];
+    notifyListeners();
+    return (rjson);
   }
 
   Future<void> logout() async {
-    final url =  "http://10.0.2.2:5000/logout";
+    /*final url =  "https://kl-resume-app.herokuapp.com/logout";
     final response = await http.post(
       Uri.parse(url),
       headers: <String, String>{
         'Content-Type': 'application/json; charset=UTF-8',
       },
     );
-    updateCookie(response);
     final responseData = json.decode(response.body);
     if (responseData['success'] == false){
       throw HttpException(responseData['message']);
     }
     _token = '';
     notifyListeners();
-    return (responseData);
+    return (responseData);*/
+    var r = await Requests.post(
+        "https://kl-resume-app.herokuapp.com/api_logout",
+    );
+
+    r.raiseForStatus();
+    dynamic rjson = r.json();
+    if (rjson['success'] == false){
+      throw HttpException(rjson['message']);
+    }
+    _token = rjson['email'];
+    notifyListeners();
+    return (rjson);
   }
 
+  Future<void> resetPassword(Map<String, String> _editData) async {
+    var response = await Requests.post(
+        "https://kl-resume-app.herokuapp.com/password/forgot",
+        json: {
+          "email": _editData['email']
+        }
+    );
+    response.raiseForStatus();
+    dynamic responseData = response.json();
+
+    if (responseData['success'] == false){
+      throw HttpException(responseData['message']);
+    }
+    notifyListeners();
+    return responseData;
+  }
 }

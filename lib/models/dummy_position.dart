@@ -1,5 +1,5 @@
 import 'position.dart';
-
+/*
 final List<Position> dummyPosition = <Position> [
   Position(
       id: 0,
@@ -496,3 +496,4 @@ final List<Position> dummyPosition = <Position> [
       ]
   ),
 ];
+*/

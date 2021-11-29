@@ -78,7 +78,7 @@ class ExperienceViewPage extends StatelessWidget{
           Align(
               alignment: Alignment.centerRight,
               child: Container(
-                child:Text(getDateTime("", exp.city_state, exp.country, "", " - "),
+                child:Text(getDateTime("", exp.cityState, exp.country, "", " - "),
                   textAlign: TextAlign.right,
                   style: TextStyle(
                     color: appColor,
@@ -91,7 +91,7 @@ class ExperienceViewPage extends StatelessWidget{
           Align(
             alignment: Alignment.centerRight,
             child: Container(
-              child: Text(getDateTime(exp.start_month, exp.start_year, exp.end_month, exp.end_year, " - "),
+              child: Text(getDateTime(exp.startDate, exp.endDate, "", "", " - "),
                 style: TextStyle(
                   color: appColor,
                   fontWeight: FontWeight.bold,

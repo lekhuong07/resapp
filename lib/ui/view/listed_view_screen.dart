@@ -22,12 +22,10 @@ class _ListViewPageState extends State<ListViewPage> {
   void initState(){
     super.initState();
     clickedIndex = 0;
-    print("Open");
   }
 
   @override
   void dipose(){
-    print("Close");
     super.dispose();
   }
 
@@ -44,10 +42,7 @@ class _ListViewPageState extends State<ListViewPage> {
     }
 
     final positionId = ModalRoute.of(context)!.settings.arguments as int;
-    final pos = Provider.of<ProviderPositions>(
-      context,
-      listen: false,
-    ).findById(positionId);
+    final pos = Provider.of<ProviderPositions>(context, listen: false).findById(positionId);
 
     List<Section> section = pos.section;
     return Scaffold(
@@ -125,14 +120,11 @@ class _ListViewPageState extends State<ListViewPage> {
                               physics: NeverScrollableScrollPhysics(),
                               itemCount: section[index].experience.length > 0 ? section[index].experience.length : section[index].skill.length,
                               itemBuilder: (BuildContext context, int i) {
-                                return ClipRRect(
-                                    borderRadius: BorderRadius.circular(screenTab(context)*1.5),
-                                    child: Container(
+                                return Container(
                                         margin: EdgeInsets.only(left: screenTab(context)/2, right: screenTab(context)/2),
                                         child: section[index].experience.length > 0 ?
                                         ExperienceViewPage(context, section[index].experience[i]) :
                                         SkillViewPage(context, section[index].skill[i])
-                                    )
                                 );
                               },
                               separatorBuilder: (BuildContext context, int index) => const Divider(color: appColor),

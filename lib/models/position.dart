@@ -4,28 +4,35 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 class Position with ChangeNotifier{
-  int id;
+  int index;
   String title;
+  String dataId;
   List<Section> section;
   //List<bool> isShown;
 
   Position({
-    required this.id,
+    required this.index,
     required this.title,
     required this.section,
+    required this.dataId
   });
 }
 
 class Section with ChangeNotifier {
+  int index;
   String name;
+  String dataId;
   List<Experience> experience;
   List<Skill> skill;
   bool isChosen;
+
   Section({
-    required String name,
+    required this.index,
+    required this.name,
+    required this.dataId,
     List<Experience> experience =  const <Experience>[],
-    List<Skill> skill = const <Skill>[]
-  }) : name = name, experience = experience, skill = skill, this.isChosen = false;
+    List<Skill> skill = const <Skill>[],
+  }) : experience = experience, skill = skill, this.isChosen = false;
 
   void toggleShowHide(bool flag) {
     isChosen = flag;
@@ -34,44 +41,44 @@ class Section with ChangeNotifier {
 
 }
 
-class Experience {
-  String id;
+class Experience with ChangeNotifier {
+  int index;
+  String dataId;
   String title;
   String place;
-  String city_state;
+  String cityState;
   String country;
-  String start_month;
-  String start_year;
-  String end_month;
-  String end_year;
+  String startDate;
+  String endDate;
   bool isChosen;
   List<String> description;
 
   Experience({
+    required this.index,
     required this.title,
     required this.place,
-    required this.city_state,
+    required this.cityState,
     required this.country,
-    required this.start_month,
-    required this.start_year,
-    required this.end_month,
-    required this.end_year,
+    required this.startDate,
+    required this.endDate,
     required this.description,
+    required this.dataId,
     this.isChosen = false,
-    this.id = ''
   });
 }
 
-class  Skill {
-  String id;
+class  Skill with ChangeNotifier {
+  int index;
+  String dataId;
   String title;
   bool isChosen;
   List<String> description;
 
   Skill({
+    required this.index,
+    required this.dataId,
     required this.title,
     required this.description,
     this.isChosen = false,
-    this.id = ''
   });
 }
