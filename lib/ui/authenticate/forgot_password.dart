@@ -113,7 +113,7 @@ class _ForgotPasswordState extends State<ForgotPassword> {
                           ),
                           TextButton(
                               onPressed: () {
-                                _submitEditPassword( _submitEditPassword(_resetPassword));
+                                _submitEditPassword(_resetPassword);
                               },
                               child: Icon(Icons.save_outlined , color: appColor)
                           ),

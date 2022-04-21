@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resapp/models/position.dart';
 import 'package:resapp/models/position_provider.dart';
+import 'package:resapp/models/user_provider.dart';
 import 'package:resapp/ui/position_list/position_list_view.dart';
 import 'package:resapp/ui/view/skill_view.dart';
 
@@ -41,6 +42,7 @@ class _ListViewPageState extends State<ListViewPage> {
       }
     }
 
+    final userProfile = Provider.of<ProviderUser>(context).userProfile;
     final positionId = ModalRoute.of(context)!.settings.arguments as int;
     final pos = Provider.of<ProviderPositions>(context, listen: false).findById(positionId);
 
@@ -51,49 +53,28 @@ class _ListViewPageState extends State<ListViewPage> {
           child: Column(
               children: <Widget> [
                 Expanded (
-                    flex: 25,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      crossAxisAlignment: CrossAxisAlignment.center,
+                    flex: 20,
+                    child: Column (
+                      mainAxisAlignment: MainAxisAlignment.start,
                       children: <Widget> [
-                        Expanded(
-                            flex: 30,
-                            child: SafeArea(
-                              child:  Image.asset(
-                                "assets/images/frame10.png",
-                                height: imageHeight(context),
-                                width: imageWidth(context),
-                              ),
-                            )
+                        Text(pos.title,
+                          style: TextStyle(
+                            color: appColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: fontSizeNormal(context),
+                          ),
                         ),
-                        Expanded(
-                            flex:70,
-                            child: SafeArea(
-                                child: Column (
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  children: <Widget> [
-                                    Text(pos.title,
-                                      style: TextStyle(
-                                        color: appColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: fontSizeNormal(context),
-                                      ),
-                                    ),
-                                    Container(
-                                      child: Text("This should be a very very long statement about yourself, testing to see how long it could be looper.",
-                                        maxLines: 3,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: new TextStyle(
-                                          color: Colors.black,
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: fontSizeSmall(context),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            )
-                        )
+                        Container(
+                          child: Text(userProfile.ps,
+                            maxLines: 5,
+                            overflow: TextOverflow.ellipsis,
+                            style: new TextStyle(
+                              color: Colors.black,
+                              fontStyle: FontStyle.italic,
+                              fontSize: fontSizeSmall(context),
+                            ),
+                          ),
+                        ),
                       ],
                     )
                 ),

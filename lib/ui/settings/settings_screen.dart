@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:resapp/models/auth_provider.dart';
 import 'package:resapp/models/http_exception.dart';
+import 'package:resapp/models/position_provider.dart';
 import 'package:resapp/models/user.dart';
 import 'package:resapp/models/user_provider.dart';
 import 'package:resapp/ui/authenticate/authenticate_screen.dart';
@@ -64,6 +65,7 @@ class _SettingsPageState extends State<SettingsPage> {
 
   Widget build(BuildContext context) {
     User userProfile = this.widget.userProvider.userProfile;
+    final productData = Provider.of<ProviderPositions>(context);
     void _showErrorDialog(String message) {
       showDialog(
         context: context,
@@ -110,36 +112,9 @@ class _SettingsPageState extends State<SettingsPage> {
         body:  _isLoading ? Center(child: CircularProgressIndicator()): SafeArea(
           child: Column(
             children: <Widget> [
-              Expanded (
-                flex: 20,
-                child: Row(
-                children: <Widget> [
-                  Expanded(
-                      flex: 50,
-                      child: SafeArea(
-                        child:  Image.asset(
-                          "assets/images/frame10.png",
-                          height: Constants.imageHeight(context),
-                          width: Constants.imageWidth(context),
-                        ),
-                      )
-                  ),
-                  Expanded(
-                      flex: 50,
-                      child: SafeArea(
-                        child:  Image.asset(
-                          "assets/images/frame10.png",
-                          height: Constants.imageHeight(context),
-                          width: Constants.imageWidth(context),
-                        ),
-                      )
-                  ),
-                ],
-                )
-              ),
               SizedBox(height:screenTab(context)/2),
               Expanded (
-                flex: 80,
+                flex: 100,
                 child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly ,
                 children: [
@@ -149,14 +124,6 @@ class _SettingsPageState extends State<SettingsPage> {
                         onLongPress: () { navigateChangeProfile(context, userProfile); },
                         child: Column(
                             children: <Widget>[
-                              Text("Change profile information",
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSizeSmall(context),
-                                ),
-                              ),
-                              SizedBox(height:screenTab(context)/2),
                               Text("Full name: ${userProfile.fullname}",
                                 style: TextStyle(
                                   color: Colors.black,
@@ -166,6 +133,22 @@ class _SettingsPageState extends State<SettingsPage> {
                               ),
                               SizedBox(height:screenTab(context)/2),
                               Text("Date of birth: ${userProfile.dob}",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSizeSmall(context),
+                                ),
+                              ),
+                              SizedBox(height:screenTab(context)/2),
+                              Text("Number of resumes: ${productData.items.length}",
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontWeight: FontWeight.bold,
+                                  fontSize: fontSizeSmall(context),
+                                ),
+                              ),
+                              SizedBox(height:screenTab(context)/2),
+                              Text("Number of applications: ${userProfile.apply.length}",
                                 style: TextStyle(
                                   color: Colors.black,
                                   fontWeight: FontWeight.bold,

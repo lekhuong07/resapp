@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:resapp/models/recommendation.dart';
 import 'package:resapp/ui/authenticate/forgot_password.dart';
 import 'package:resapp/ui/home/navigation.dart';
 import 'package:resapp/ui/position_list/add_experience_form.dart';
@@ -11,6 +12,7 @@ import 'package:resapp/ui/view/splitted_view_screen.dart';
 import 'models/auth_provider.dart';
 import 'models/dummy_position.dart';
 import 'models/position.dart';
+import 'models/recommendation_provider.dart';
 import 'models/user.dart';
 import 'models/user_provider.dart';
 import 'ui/authenticate/authenticate_screen.dart';
@@ -41,6 +43,14 @@ class MyApp extends StatelessWidget {
           create: (_) => ProviderPositions(<Position>[]),
           update: (context, auth, previousPositions) => ProviderPositions(
             previousPositions == null ? <Position>[] : previousPositions.items,
+          ),
+        ),
+        ChangeNotifierProxyProvider<Auth, ProviderRec>(
+          create: (_) => ProviderRec(Recommendation(keywords:[], similarities: [])),
+          update: (context, auth, previousRec) => ProviderRec(
+            previousRec == null ?
+            Recommendation(keywords:[], similarities: []) :
+            previousRec.profileRec,
           ),
         ),
         ChangeNotifierProxyProvider<Auth, ProviderUser>(

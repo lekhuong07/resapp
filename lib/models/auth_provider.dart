@@ -90,7 +90,6 @@ class Auth with ChangeNotifier {
           'password': password,
         }
     );
-
     r.raiseForStatus();
     dynamic rjson = r.json();
     if (rjson['success'] == false){

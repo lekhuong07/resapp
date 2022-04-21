@@ -113,8 +113,6 @@ class ProviderUser with ChangeNotifier{
   }
 
   Future<void> editPassword(Map<String, String> _editData) async {
-    print("------_editData-------");
-    print(_editData);
     var response = await Requests.put(
         "https://kl-resume-app.herokuapp.com/password/edit",
         json: {

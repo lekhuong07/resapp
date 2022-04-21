@@ -27,54 +27,34 @@ class _ViewPageState extends State<ViewPage> {
         child: Column(
             children: <Widget> [
               Expanded (
-                  flex: 25,
-                  child: SafeArea(
-                      child: (
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: <Widget> [
-                              Expanded(
-                                flex: 30,
-                                child:  Image.asset(
-                                  "assets/images/frame10.png",
-                                  height: imageHeight(context),
-                                  width: imageWidth(context),
-                                ),
-                              ),
-                              Expanded(
-                                  flex:70,
-                                  child: Column (
-                                    mainAxisAlignment: MainAxisAlignment.start,
-                                    crossAxisAlignment: CrossAxisAlignment.center,
-                                    children: <Widget> [
-                                      Text(userProfile.fullname,
-                                        style: TextStyle(
-                                          color: appColor,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: fontSizeNormal(context),
-                                        ),
-                                      ),
-                                      Container(
-                                        child: Text(userProfile.ps,
-                                          maxLines: 4,
-                                          overflow: TextOverflow.ellipsis,
-                                          style: TextStyle(
-                                            color: Colors.black,
-                                            fontStyle: FontStyle.italic,
-                                            fontSize: fontSizeSmall(context),
-                                          ),
-                                        ),
-                                      ),
-                                    ],
-                                  )
-                              )
-                            ],
-                          )
-                      )
+                  flex: 20,
+                  child: Column (
+                      mainAxisAlignment: MainAxisAlignment.start,
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget> [
+                        Text(userProfile.fullname,
+                          style: TextStyle(
+                            color: appColor,
+                            fontWeight: FontWeight.bold,
+                            fontSize: fontSizeNormal(context),
+                          ),
+                        ),
+                        Container(
+                          child: Text(userProfile.ps,
+                            maxLines: 5,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontStyle: FontStyle.italic,
+                              fontSize: fontSizeSmall(context),
+                            ),
+                          ),
+                        ),
+                      ],
                   )
               ),
               Expanded (
-                flex: 75,
+                flex: 80,
                 child: GridView.builder(
                   padding: EdgeInsets.only(left: screenTab(context)/2, right: screenTab(context)/2),
                   itemCount: dummyPosition.length,

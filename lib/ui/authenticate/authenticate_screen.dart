@@ -18,7 +18,9 @@ class AuthPage extends StatefulWidget{
 class _AuthPageState extends State<AuthPage> {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+    return GestureDetector(
+      onTap: () => FocusManager.instance.primaryFocus?.unfocus(),
+      child: Scaffold(
       backgroundColor: Colors.white,
       body: Center(
           child: Column(
@@ -61,6 +63,7 @@ class _AuthPageState extends State<AuthPage> {
                   )
               ),
             ]
+          )
         )
       )
     );

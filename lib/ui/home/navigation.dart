@@ -12,11 +12,12 @@ class HomePage extends StatefulWidget {
 
 class _NavigationState extends State<HomePage> {
   String _currentPage = "ProfilePage";
-  List<String> pageKeys = ["ProfilePage", "PositionPage", "ViewPage", "SettingsPage"];
+  List<String> pageKeys = ["ProfilePage", "PositionPage", "ViewPage", "TipsPage","SettingsPage"];
   Map<String, GlobalKey<NavigatorState>> _navigatorKeys = {
     "ProfilePage": GlobalKey<NavigatorState>(),
     "PositionPage": GlobalKey<NavigatorState>(),
     "ViewPage": GlobalKey<NavigatorState>(),
+    "TipsPage": GlobalKey<NavigatorState>(),
     "SettingsPage": GlobalKey<NavigatorState>(),
   };
 
@@ -54,6 +55,7 @@ class _NavigationState extends State<HomePage> {
               _buildOffstageNavigator("ProfilePage"),
               _buildOffstageNavigator("PositionPage"),
               _buildOffstageNavigator("ViewPage"),
+              _buildOffstageNavigator("TipsPage"),
               _buildOffstageNavigator("SettingsPage"),
             ]
         ),
@@ -75,6 +77,11 @@ class _NavigationState extends State<HomePage> {
             BottomNavigationBarItem(
               icon: Icon(Icons.my_library_books_outlined),
               label: 'View',
+              backgroundColor: const Color(0xFF424242),
+            ),
+            BottomNavigationBarItem(
+              icon: Icon(Icons.badge_outlined),
+              label: 'Tips',
               backgroundColor: const Color(0xFF424242),
             ),
             BottomNavigationBarItem(

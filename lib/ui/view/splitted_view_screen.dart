@@ -45,8 +45,6 @@ class _SplitViewPageState extends State<SplitViewPage> {
     }
     final userProfile = Provider.of<ProviderUser>(context).userProfile;
     final positionId = ModalRoute.of(context)!.settings.arguments as int;
-    print("Position ID: ...");
-    print(positionId);
     final pos = Provider.of<ProviderPositions>(
         context,
         listen: false,
@@ -60,54 +58,33 @@ class _SplitViewPageState extends State<SplitViewPage> {
         child: Column(
             children: <Widget> [
               Expanded (
-                flex: 25,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
+                flex: 20,
+                child: Column (
+                  mainAxisAlignment: MainAxisAlignment.start,
                   children: <Widget> [
-                    Expanded(
-                        flex: 30,
-                        child: SafeArea(
-                          child:  Image.asset(
-                            "assets/images/frame10.png",
-                            height: imageHeight(context),
-                            width: imageWidth(context),
-                          ),
-                        )
+                    Text(pos.title,
+                      style: TextStyle(
+                        color: appColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: fontSizeNormal(context),
+                      ),
                     ),
-                    Expanded(
-                      flex:70,
-                      child: SafeArea(
-                          child: Column (
-                            mainAxisAlignment: MainAxisAlignment.start,
-                            children: <Widget> [
-                              Text(pos.title,
-                                style: TextStyle(
-                                  color: appColor,
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: fontSizeNormal(context),
-                                ),
-                              ),
-                              Container(
-                                child: Text(userProfile.ps,
-                                  maxLines: 3,
-                                  overflow: TextOverflow.ellipsis,
-                                  style: new TextStyle(
-                                    color: Colors.black,
-                                    fontStyle: FontStyle.italic,
-                                    fontSize: fontSizeSmall(context),
-                                  ),
-                                ),
-                              ),
-                            ],
-                          )
-                      )
-                    )
+                    Container(
+                      child: Text(userProfile.ps,
+                        maxLines: 5,
+                        overflow: TextOverflow.ellipsis,
+                        style: new TextStyle(
+                          color: Colors.black,
+                          fontStyle: FontStyle.italic,
+                          fontSize: fontSizeSmall(context),
+                        ),
+                      ),
+                    ),
                   ],
                 )
               ),
               Expanded (
-                flex: 75,
+                flex: 80,
                 child: Row(
                   children: <Widget>[
                     Expanded (

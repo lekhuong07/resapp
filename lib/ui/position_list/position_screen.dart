@@ -109,50 +109,32 @@ class _PositionPageState extends State<PositionPage> {
           child: Column(
               children: <Widget> [
                 Expanded (
-                  flex: 25,
+                  flex: 20,
                   child: SafeArea(
-                      child: (
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
+                      child: Column (
+                          mainAxisAlignment: MainAxisAlignment.start,
+                          crossAxisAlignment: CrossAxisAlignment.center,
                           children: <Widget> [
-                            Expanded(
-                              flex: 30,
-                              child:  Image.asset(
-                                "assets/images/frame10.png",
-                                height: imageHeight(context),
-                                width: imageWidth(context),
+                            Text(userProfile.fullname,
+                              style: TextStyle(
+                                color: appColor,
+                                fontWeight: FontWeight.bold,
+                                fontSize: fontSizeNormal(context),
                               ),
                             ),
-                            Expanded(
-                                flex:70,
-                                child: Column (
-                                  mainAxisAlignment: MainAxisAlignment.start,
-                                  crossAxisAlignment: CrossAxisAlignment.center,
-                                  children: <Widget> [
-                                    Text(userProfile.fullname,
-                                      style: TextStyle(
-                                        color: appColor,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: fontSizeNormal(context),
-                                      ),
-                                    ),
-                                    Container(
-                                      child: Text(userProfile.ps,
-                                        maxLines: 4,
-                                        overflow: TextOverflow.ellipsis,
-                                        style: TextStyle(
-                                          color: Colors.black,
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: fontSizeSmall(context),
-                                        ),
-                                      ),
-                                    ),
-                                  ],
-                                )
-                            )
+                            Container(
+                              child: Text(userProfile.ps,
+                                maxLines: 5,
+                                overflow: TextOverflow.ellipsis,
+                                style: TextStyle(
+                                  color: Colors.black,
+                                  fontStyle: FontStyle.italic,
+                                  fontSize: fontSizeSmall(context),
+                                ),
+                              ),
+                            ),
                           ],
                         )
-                      )
                   )
                 ),
                 Expanded(
@@ -195,7 +177,7 @@ class _PositionPageState extends State<PositionPage> {
                   )
                 ),
                 Expanded (
-                  flex: 60,
+                  flex: 65,
                   child: PositionListView(),
                 ),
               ]
